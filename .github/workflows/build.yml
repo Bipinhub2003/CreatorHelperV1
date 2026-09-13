@@ -24,6 +24,13 @@ jobs:
         run: |
           unzip -o CreatorHelperV1_Android_Project.zip -d project
 
+      - name: Enable AndroidX
+        run: |
+          mkdir -p project
+          touch project/gradle.properties
+          echo "android.useAndroidX=true" >> project/gradle.properties
+          echo "android.enableJetifier=true" >> project/gradle.properties
+
       - name: Install Gradle
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.9-bin.zip
