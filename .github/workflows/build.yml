@@ -1,48 +1,39 @@
-name: Build Creator Helper APK
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+}
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+android {
+    namespace = "com.creatorhelper"
+    compileSdk = 35
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+    defaultConfig {
+        applicationId = "com.creatorhelper"
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+    }
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+kotlin {
+    jvmToolchain(17)
+}
 
-      - name: Extract Android project
-        run: |
-          unzip -o CreatorHelperV1_Android_Project.zip -d project
+dependencies {
+    implementation(platform("androidx.compose:compose-bom:2024.12.01"))
 
-      - name: Enable AndroidX
-        run: |
-          mkdir -p project
-          touch project/gradle.properties
-          echo "android.useAndroidX=true" >> project/gradle.properties
-          echo "android.enableJetifier=true" >> project/gradle.properties
+    implementation("androidx.activity:activity-compose:1.10.0")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
 
-      - name: Install Gradle
-        run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.9-bin.zip
-          unzip -q gradle-8.9-bin.zip
-          echo "$PWD/gradle-8.9/bin" >> $GITHUB_PATH
-
-      - name: Build APK
-        working-directory: project
-        run: gradle assembleDebug --no-daemon
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: CreatorHelper-debug-apk
-          path: project/app/build/outputs/apk/debug/app-debug.apk
+    debugImplementation("androidx.compose.ui:ui-tooling")
+}
